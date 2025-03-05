@@ -4,9 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"myapi/controllers"
-	"myapi/routers"
-	"myapi/services"
+	"myapi/api"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -26,11 +24,8 @@ func main() {
 		log.Println("fail to connect DB")
 		return
 	}
-	ser := services.NewMyAppService(db)
-	aCon := controllers.NewArticleController(ser)
-	cCon := controllers.NewCommentController(ser)
 	defer db.Close()
-	r := routers.NewRouter(aCon, cCon)
+	r := api.NewRouter(db)
 	log.Println("server start at pory 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

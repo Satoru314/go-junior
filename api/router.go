@@ -1,20 +1,20 @@
-package routers
+package api
 
 import (
+	"database/sql"
 	"myapi/controllers"
+	"myapi/services"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(aCon *controllers.ArticleController, cCon *controllers.CommentController) *mux.Router {
+func NewRouter(db *sql.DB) *mux.Router {
+	ser := services.NewMyAppService(db)
+	aCon := controllers.NewArticleController(ser)
+	cCon := controllers.NewCommentController(ser)
+
 	r := mux.NewRouter()
-	// 1. ArticleHandler を登録
-	// 3. ArticleListHandler を登録
-	// 4. NiceHandler を登録
-	// 5. CommentHandler を登録
-	// 6. ArticleDetailHandler を登録
-	// 7. ルーティングを返却
 	r.HandleFunc("/article", aCon.ArticleHandler).Methods(http.MethodPost)
 	r.HandleFunc("/article/list", aCon.ArticleListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/article/{id:[0-9]+}", aCon.ArticleDetailHandler).Methods(http.MethodGet)
