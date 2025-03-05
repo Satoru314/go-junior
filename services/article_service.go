@@ -5,6 +5,15 @@ import (
 	"myapi/repositories"
 )
 
+func (s *MyAppService) PostArticleService(article models.Article) (models.Article, error) {
+	// TODO : 実装
+	resArticle, err := repositories.InsertArticle(s.db, article)
+	if err != nil {
+		return models.Article{}, err
+	}
+	return resArticle, nil
+}
+
 func (s *MyAppService) GetArticleService(articleID int) (models.Article, error) {
 	// 記事IDを送ると記事にコメントを紐づけた後、Article型で
 	// TODO : sql.DB 型を手に入れて、変数 db に代入する
@@ -20,14 +29,6 @@ func (s *MyAppService) GetArticleService(articleID int) (models.Article, error) 
 	}
 	// 3. 2 で得たコメント一覧を、1 で得た Article 構造体に紐付ける
 	return article, nil
-}
-func (s *MyAppService) PostArticleService(article models.Article) (models.Article, error) {
-	// TODO : 実装
-	resArticle, err := repositories.InsertArticle(s.db, article)
-	if err != nil {
-		return models.Article{}, err
-	}
-	return resArticle, nil
 }
 
 // ArticleListHandler で使うことを想定したサービス
