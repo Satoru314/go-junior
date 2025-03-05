@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"myapi/controllers/services"
 	"myapi/models"
-	"myapi/services"
 	"net/http"
 	"strconv"
 
@@ -15,11 +15,11 @@ import (
 
 type MyAppController struct {
 	// 2. フィールドに MyAppService 構造体を含める
-	service *services.MyAppService
+	service services.MyAppServicer
 }
 
 // コンストラクタの定義
-func NewMyAppController(s *services.MyAppService) *MyAppController {
+func NewMyAppController(s services.MyAppServicer) *MyAppController {
 	return &MyAppController{service: s}
 }
 

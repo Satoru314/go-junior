@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"log"
 	"myapi/controllers"
+	"myapi/routers"
 	"myapi/services"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
-
-	"github.com/gorilla/mux"
 )
 
 var (
@@ -29,16 +28,8 @@ func main() {
 	}
 	ser := services.NewMyAppService(db)
 	con := controllers.NewMyAppController(ser)
-
 	defer db.Close()
-
-	r := mux.NewRouter()
-
-	r.HandleFunc("/article", con.ArticleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/article/list", con.ArticleListHandler).Methods(http.MethodGet)
-	r.HandleFunc("/article/{id:[0-9]+}", con.ArticleDetailHandler).Methods(http.MethodGet)
-	r.HandleFunc("/article/nice", con.ArticleNiceHandler).Methods(http.MethodPost)
-	r.HandleFunc("/comment", con.CommentHandler).Methods(http.MethodPost)
+	r := routers.NewRouter(con)
 	log.Println("server start at pory 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
