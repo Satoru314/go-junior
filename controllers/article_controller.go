@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"myapi/apperrors"
 	"myapi/controllers/services"
 	"myapi/models"
 	"net/http"
@@ -24,19 +25,25 @@ func NewArticleController(s services.ArticleServicer) *ArticleController {
 
 // 外部からのArticleControllerの利用
 func (c *ArticleController) ArticleHandler(w http.ResponseWriter, req *http.Request) {
-	//
 	var reqArticle models.Article
 	err := json.NewDecoder(req.Body).Decode(&reqArticle)
 	if err != nil {
-		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+		err = apperrors.ReqBodyDecodeFailed.Wrap(err, "fail to decode json")
+		apperrors.ErrorHandler(w, req, err)
+		return
 	}
+
 	resArticle, err := c.service.PostArticleService(reqArticle)
 	if err != nil {
-		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+		err = apperrors.ServiceFuncFailed.Wrap(err, "fail to post article service")
+		apperrors.ErrorHandler(w, req, err)
+		return
 	}
+
 	json.NewEncoder(w).Encode(resArticle)
 
 }
+
 func (c *ArticleController) ArticleListHandler(w http.ResponseWriter, req *http.Request) {
 	//クエリのマップを取得
 	queryMap := req.URL.Query()
@@ -46,7 +53,8 @@ func (c *ArticleController) ArticleListHandler(w http.ResponseWriter, req *http.
 		var err error
 		page, err = strconv.Atoi(p[0])
 		if err != nil {
-			http.Error(w, "Invalid query parameter", http.StatusBadRequest)
+			err = apperrors.BadParam.Wrap(err, "queryparam must be number")
+			apperrors.ErrorHandler(w, req, err)
 			return
 		}
 	} else {
@@ -54,10 +62,12 @@ func (c *ArticleController) ArticleListHandler(w http.ResponseWriter, req *http.
 	}
 	//ページから対応する記事郡をリクエスト
 	resArticle, err := c.service.GetArticleListService(page)
-	resString := fmt.Sprintf("Article List (page %d)\n", page)
 	if err != nil {
+		err = apperrors.BadPathParam.Wrap(err, "fail to get article list")
+		apperrors.ErrorHandler(w, req, err)
 		return
 	}
+	resString := fmt.Sprintf("Article List (page %d)\n", page)
 	io.WriteString(w, resString)
 	json.NewEncoder(w).Encode(resArticle)
 
@@ -67,13 +77,15 @@ func (c *ArticleController) ArticleDetailHandler(w http.ResponseWriter, req *htt
 	//求める記事のIDを取得
 	articleID, err := strconv.Atoi(mux.Vars(req)["id"])
 	if err != nil {
-		http.Error(w, "Incalid query parameter", http.StatusBadRequest)
+		err = apperrors.BadPathParam.Wrap(err, "pathparam must be number")
+		apperrors.ErrorHandler(w, req, err)
 		return
 	}
 	//IDに対応した記事を取得
 	resArticle, err := c.service.GetArticleService(articleID)
 	if err != nil {
-		http.Error(w, "Incalid query parameter", http.StatusBadRequest)
+		err = apperrors.ServiceFuncFailed.Wrap(err, "fail to get article detail")
+		apperrors.ErrorHandler(w, req, err)
 		return
 	}
 	//記事をエンコード
@@ -81,17 +93,21 @@ func (c *ArticleController) ArticleDetailHandler(w http.ResponseWriter, req *htt
 	io.WriteString(w, resString)
 	json.NewEncoder(w).Encode(resArticle)
 }
-func (c *ArticleController) ArticleNiceHandler(w http.ResponseWriter, req *http.Request) {
 
+func (c *ArticleController) ArticleNiceHandler(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Posting Nice...\n")
 	var reqArticle models.Article
 	err := json.NewDecoder(req.Body).Decode(&reqArticle)
 	if err != nil {
-		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+		err = apperrors.ReqBodyDecodeFailed.Wrap(err, "bad request body")
+		apperrors.ErrorHandler(w, req, err)
+		return
 	}
 	resArticle, err := c.service.PostNiceService(reqArticle)
 	if err != nil {
-		http.Error(w, "fail to decode json\n", http.StatusBadRequest)
+		err = apperrors.ServiceFuncFailed.Wrap(err, "fail to post nice service")
+		apperrors.ErrorHandler(w, req, err)
+		return
 	}
 	json.NewEncoder(w).Encode(resArticle)
 }
