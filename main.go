@@ -4,21 +4,19 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"myapi/controllers"
-	"myapi/services"
+	"myapi/api"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
-
-	"github.com/gorilla/mux"
 )
 
 var (
 	dbUser     = "docker"
 	dbPassword = "docker"
 	dbDatabase = "sampledb"
-	dbConn     = fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?parseTime=true", dbUser,
-		dbPassword, dbDatabase)
+	dbHost     = "localhost"
+	dbConn     = fmt.Sprintf("%s:%s@tcp(%s:4000)/%s?parseTime=true", dbUser,
+		dbPassword, dbHost, dbDatabase)
 )
 
 func main() {
@@ -27,18 +25,8 @@ func main() {
 		log.Println("fail to connect DB")
 		return
 	}
-	ser := services.NewMyAppService(db)
-	con := controllers.NewMyAppController(ser)
-
 	defer db.Close()
-
-	r := mux.NewRouter()
-
-	r.HandleFunc("/article", con.ArticleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/article/list", con.ArticleListHandler).Methods(http.MethodGet)
-	r.HandleFunc("/article/{id:[0-9]+}", con.ArticleDetailHandler).Methods(http.MethodGet)
-	r.HandleFunc("/article/nice", con.ArticleNiceHandler).Methods(http.MethodPost)
-	r.HandleFunc("/comment", con.CommentHandler).Methods(http.MethodPost)
+	r := api.NewRouter(db)
 	log.Println("server start at pory 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
