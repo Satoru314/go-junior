@@ -14,8 +14,9 @@ var (
 	dbUser     = "docker"
 	dbPassword = "docker"
 	dbDatabase = "sampledb"
-	dbConn     = fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/%s?parseTime=true", dbUser,
-		dbPassword, dbDatabase)
+	dbHost     = "localhost"
+	dbConn     = fmt.Sprintf("%s:%s@tcp(%s:4000)/%s?parseTime=true", dbUser,
+		dbPassword, dbHost, dbDatabase)
 )
 
 func main() {
