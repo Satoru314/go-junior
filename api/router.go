@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"myapi/api/middlewares"
 	"myapi/controllers"
 	"myapi/services"
 	"net/http"
@@ -21,5 +22,6 @@ func NewRouter(db *sql.DB) *mux.Router {
 	r.HandleFunc("/article/nice", aCon.ArticleNiceHandler).Methods(http.MethodPost)
 	r.HandleFunc("/comment", cCon.CommentHandler).Methods(http.MethodPost)
 
+	r.Use(middlewares.LoggingMiddleware)
 	return r
 }
