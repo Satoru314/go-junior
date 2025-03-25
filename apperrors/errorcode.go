@@ -15,6 +15,10 @@ const (
 	BadParam            ErrCode = "R002"
 	BadPathParam        ErrCode = "R003"
 	ServiceFuncFailed   ErrCode = "R004"
+
+	RequiredAuthorizationHeader ErrCode = "A001"
+	CannotMakeValidator         ErrCode = "A002"
+	Unauthorizated              ErrCode = "A003"
 )
 
 func (code ErrCode) Wrap(err error, message string) error {

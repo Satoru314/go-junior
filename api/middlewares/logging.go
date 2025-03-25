@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"log"
+	"myapi/common"
 	"net/http"
 )
 
@@ -28,8 +29,8 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		// リクエスト情報をロギング
 		traceID := newTraceID()
 		log.Printf("[%d] %s %s\n", traceID, req.RequestURI, req.Method)
-
-		ctx := SetTraceID(req.Context(), traceID)
+		// リクエストのコンテキストを取得
+		ctx := common.SetTraceID(req.Context(), traceID)
 		// リクエストのコンテキストに traceID をセット
 		req = req.WithContext(ctx)
 		// 自作の ResponseWriter を作って
